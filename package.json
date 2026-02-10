@@ -1,0 +1,22 @@
+{
+  "name": "tjc-tools",
+  "version": "0.1.0",
+  "description": "真耶穌教會工具集：講章產生器、海報設計器",
+  "author": "siygle",
+  "license": "MIT",
+  "keywords": [
+    "pi-package",
+    "tjc",
+    "true-jesus-church",
+    "sermon",
+    "poster",
+    "skills"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/vibe-tjc/tjc-tools"
+  },
+  "pi": {
+    "skills": ["./skills"]
+  }
+}
