@@ -37,13 +37,7 @@
 ## 安裝
 
 ```bash
-pi install git:github.com/vibe-tjc/tjc-tools
-```
-
-或
-
-```bash
-pi install npm:tjc-tools
+pi install https://github.com/vibe-tjc/tjc-tools.git
 ```
 
 ## 配合 Extensions 使用
