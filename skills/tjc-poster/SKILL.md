@@ -9,7 +9,7 @@ description: 設計活動邀請卡和海報。使用 AI 圖片生成（Gemini/Gr
 
 ## ⚠️ 必要工作流程（LLM 必須嚴格遵守，禁止跳過任何步驟）
 
-收到用戶的海報設計需求時，**必須依序執行以下步驟**，不得跳過或合併：
+收到用戶的海報設計需求時，**必須依序執行以下步驟**，每個步驟都必須等待用戶回應後才能進入下一步：
 
 ### 步驟 1：確認活動資訊
 
@@ -31,20 +31,56 @@ description: 設計活動邀請卡和海報。使用 AI 圖片生成（Gemini/Gr
 - 方案應有差異性，涵蓋不同風格和設計方向
 - **等待用戶選擇後，才進入步驟 3**
 
-### 步驟 3：確認尺寸（可選）
+### 步驟 3：確認尺寸
 
-- 若用戶未指定尺寸，詢問需要的輸出尺寸
+- 若用戶未指定尺寸，列出可用尺寸讓用戶選擇
 - 若用戶無特別要求，預設使用 `a4`（A4 直式）
-- 可用尺寸：a4 / a4-landscape / instagram / instagram-story / facebook
+- 可用尺寸：
+  - `a4` — A4 直式 2480×3508（列印用，300dpi）
+  - `a4-landscape` — A4 橫式 3508×2480
+  - `instagram` — IG 方形 1080×1080
+  - `instagram-story` — IG 限動 1080×1920
+  - `facebook` — FB 貼文 1200×630
+- **等待用戶確認後，才進入步驟 4**
 
-### 步驟 4：呼叫 design_poster 工具生成海報
+### 步驟 4：選擇 AI 生成模型
 
-- 將用戶選定的設計方案細節寫入 `eventInfo` 參數中（包含活動資訊 + 設計概念描述）
+- 列出目前可用的模型清單，並標示預設模型
+- 可用模型：
+  - **gemini（預設）：**
+    - `gemini-3.1-flash-image-preview` ⭐ 預設
+    - `gemini-3-pro-image-preview`
+    - `imagen-4.0-fast-generate-001`
+    - `imagen-4.0-generate-001`
+    - `imagen-4.0-ultra-generate-001`
+  - **nano-banana-pro：**
+    - `nano-banana-pro`
+  - **grok：**
+    - `grok-2-image`
+  - **openai：**
+    - `dall-e-3`
+    - `dall-e-2`
+- 若用戶無特別要求，使用預設模型（gemini / gemini-3.1-flash-image-preview）
+- **等待用戶確認後，才進入步驟 5**
+
+### 步驟 5：總覽確認
+
+- 將所有已決定的項目列成總覽清單，讓用戶做最終確認：
+  - ✅ 活動資訊（摘要）
+  - ✅ 設計方案（名稱 + 風格）
+  - ✅ 配色 / 視覺元素
+  - ✅ 輸出尺寸
+  - ✅ AI 模型
+- **必須等用戶明確確認「OK / 開始 / 確認」後，才能呼叫 design_poster 工具**
+
+### 步驟 6：呼叫 design_poster 工具生成海報
+
+- 將活動資訊 + 設計概念描述一起寫入 `eventInfo` 參數
 - 根據選定的風格設定 `styles` 參數
-- 設定 `size` 參數
-- **呼叫 `design_poster` 工具生成海報**
+- 設定 `size` 和 `provider` / `model` 參數
+- 呼叫 `design_poster` 工具生成海報
 
-### 步驟 5：回傳結果給用戶
+### 步驟 7：回傳結果給用戶
 
 - 將生成的海報圖片傳給用戶
 - 若用戶使用 Telegram 等外部管道，需透過對應 API 傳送圖片檔案（例如 Telegram sendPhoto API）
@@ -52,8 +88,10 @@ description: 設計活動邀請卡和海報。使用 AI 圖片生成（Gemini/Gr
 
 ### ❌ 禁止行為
 
-- **禁止**跳過步驟 2 直接呼叫 design_poster 工具
+- **禁止**跳過任何步驟
+- **禁止**未經步驟 5 的最終確認就呼叫 design_poster 工具
 - **禁止**在步驟 2 未經用戶選擇就自行決定設計方案
+- **禁止**自行決定模型，必須讓用戶確認
 - **禁止**一次呼叫 design_poster 生成多種風格（除非用戶明確要求）
 
 ---
@@ -78,30 +116,6 @@ description: 設計活動邀請卡和海報。使用 AI 圖片生成（Gemini/Gr
 - 適合青年活動
 - 可使用抽象藝術、現代設計
 - 視覺衝擊力強
-
-## 可用尺寸
-
-| 尺寸 ID | 名稱 | 像素 | 用途 |
-|---------|------|------|------|
-| a4 | A4 直式 | 2480×3508 | 列印（300dpi）|
-| a4-landscape | A4 橫式 | 3508×2480 | 列印橫式 |
-| instagram | IG 方形 | 1080×1080 | Instagram 貼文 |
-| instagram-story | IG 限動 | 1080×1920 | Instagram 限時動態 |
-| facebook | FB 貼文 | 1200×630 | Facebook 貼文 |
-
-## 可用 AI 模型
-
-### Gemini（預設）
-- gemini-2.0-flash-exp-image-generation
-- gemini-2.5-flash-preview-image
-- imagen-4.0-generate-001（需付費）
-
-### Grok
-- grok-2-image
-
-### OpenAI
-- dall-e-3
-- dall-e-2
 
 ## 注意事項
 
