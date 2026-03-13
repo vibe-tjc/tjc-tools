@@ -7,25 +7,94 @@ description: 設計活動邀請卡和海報。使用 AI 圖片生成（Gemini/Gr
 
 為真耶穌教會活動設計邀請卡和海報。
 
-## 功能
+## ⚠️ 必要工作流程（LLM 必須嚴格遵守，禁止跳過任何步驟）
 
-1. 根據活動資訊自動產生海報設計
-2. 支援多種設計風格
-3. 支援多種輸出尺寸
-4. 使用 AI 圖片生成服務
+收到用戶的海報設計需求時，**必須依序執行以下步驟**，每個步驟都必須等待用戶回應後才能進入下一步：
 
-## 使用方式
+### 步驟 1：確認活動資訊
 
-提供活動資訊，我會幫你設計海報：
+- 整理用戶提供的活動資訊（名稱、日期、時間、地點、行程等）
+- 以清楚的格式列出，請用戶確認是否正確
+- 詢問是否需要補充內容（例如：聯絡人、報名方式、費用、主辦單位等）
+- **等待用戶確認後，才進入步驟 2**
 
-```
-設計海報：
-活動名稱：2026年戶外詩歌音樂會
-地點：永康教會
-日期：2026/3/22
-時間：15:30-17:00
-主題：耶穌，改變生命的神
-```
+### 步驟 2：提出設計方案
+
+- 根據活動主題與性質，**由 LLM 提出 3～5 個設計方案**
+- 每個方案必須包含：
+  - **方案名稱**（例如：「奇幻海洋冒險地圖」）
+  - **設計風格**（tjc-style / christian-general / creative-free）
+  - **配色方案**（例如：湛藍、珊瑚橘、亮黃）
+  - **視覺元素**（例如：手繪地圖、海洋生物、巴士）
+  - **排版概念**（例如：以冒險地圖串連各站行程）
+  - **整體感覺**（例如：活潑有趣、像一場探險旅程）
+- 方案應有差異性，涵蓋不同風格和設計方向
+- **等待用戶選擇後，才進入步驟 3**
+
+### 步驟 3：確認尺寸
+
+- 若用戶未指定尺寸，列出可用尺寸讓用戶選擇
+- 若用戶無特別要求，預設使用 `a4`（A4 直式）
+- 可用尺寸：
+  - `a4` — A4 直式 2480×3508（列印用，300dpi）
+  - `a4-landscape` — A4 橫式 3508×2480
+  - `instagram` — IG 方形 1080×1080
+  - `instagram-story` — IG 限動 1080×1920
+  - `facebook` — FB 貼文 1200×630
+- **等待用戶確認後，才進入步驟 4**
+
+### 步驟 4：選擇 AI 生成模型
+
+- 列出目前可用的模型清單，並標示預設模型
+- 可用模型：
+  - **gemini（預設）：**
+    - `gemini-3.1-flash-image-preview` ⭐ 預設
+    - `gemini-3-pro-image-preview`
+    - `imagen-4.0-fast-generate-001`
+    - `imagen-4.0-generate-001`
+    - `imagen-4.0-ultra-generate-001`
+  - **nano-banana-pro：**
+    - `nano-banana-pro`
+  - **grok：**
+    - `grok-2-image`
+  - **openai：**
+    - `dall-e-3`
+    - `dall-e-2`
+- 若用戶無特別要求，使用預設模型（gemini / gemini-3.1-flash-image-preview）
+- **等待用戶確認後，才進入步驟 5**
+
+### 步驟 5：總覽確認
+
+- 將所有已決定的項目列成總覽清單，讓用戶做最終確認：
+  - ✅ 活動資訊（摘要）
+  - ✅ 設計方案（名稱 + 風格）
+  - ✅ 配色 / 視覺元素
+  - ✅ 輸出尺寸
+  - ✅ AI 模型
+- **必須等用戶明確確認「OK / 開始 / 確認」後，才能呼叫 design_poster 工具**
+
+### 步驟 6：呼叫 design_poster 工具生成海報
+
+- 將活動資訊 + 設計概念描述一起寫入 `eventInfo` 參數
+- 根據選定的風格設定 `styles` 參數
+- 設定 `size` 和 `provider` / `model` 參數
+- 呼叫 `design_poster` 工具生成海報
+
+### 步驟 7：回傳結果給用戶
+
+- 將生成的海報圖片傳給用戶
+- 若用戶使用 Telegram 等外部管道，需透過對應 API 傳送圖片檔案（例如 Telegram sendPhoto API）
+- 詢問用戶是否滿意，是否需要調整或重新生成
+
+### ❌ 禁止行為
+
+- **禁止**跳過任何步驟
+- **禁止**未經步驟 5 的最終確認就呼叫 design_poster 工具
+- **禁止**在步驟 2 未經用戶選擇就自行決定設計方案
+- **禁止**自行決定模型，必須讓用戶確認
+- **禁止**一次呼叫 design_poster 生成多種風格（除非用戶明確要求）
+
+---
 
 ## 可用風格
 
@@ -48,119 +117,15 @@ description: 設計活動邀請卡和海報。使用 AI 圖片生成（Gemini/Gr
 - 可使用抽象藝術、現代設計
 - 視覺衝擊力強
 
-## 可用尺寸
-
-| 尺寸 ID | 名稱 | 像素 | 用途 |
-|---------|------|------|------|
-| a4 | A4 直式 | 2480×3508 | 列印（300dpi）|
-| a4-landscape | A4 橫式 | 3508×2480 | 列印橫式 |
-| instagram | IG 方形 | 1080×1080 | Instagram 貼文 |
-| instagram-story | IG 限動 | 1080×1920 | Instagram 限時動態 |
-| facebook | FB 貼文 | 1200×630 | Facebook 貼文 |
-
-## 可用 AI 模型
-
-### Gemini（預設）
-- gemini-2.0-flash-exp-image-generation
-- gemini-2.5-flash-preview-image
-- imagen-4.0-generate-001（需付費）
-
-設定環境變數：
-```bash
-export GEMINI_API_KEY="your-api-key"
-```
-
-### Grok
-- grok-2-image
-
-設定環境變數：
-```bash
-export GROK_API_KEY="your-api-key"
-```
-
-### OpenAI
-- dall-e-3
-- dall-e-2
-
-設定環境變數：
-```bash
-export OPENAI_API_KEY="your-api-key"
-```
-
-## 使用 design_poster 工具
-
-如果已安裝 pi-poster-designer extension，可直接使用 design_poster 工具：
-
-```
-design_poster({
-  eventInfo: "活動資訊...",
-  styles: ["tjc-style", "christian-general"],
-  size: "a4",
-  provider: "gemini",
-  model: "gemini-2.0-flash-exp-image-generation"
-})
-```
-
-## 手動生成提示詞
-
-若沒有安裝 extension，可使用以下提示詞模板：
-
-### 真耶穌教會風格
-
-```
-Design a professional event poster for True Jesus Church.
-Style: Clean, reverent, dignified.
-Use appropriate religious imagery that aligns with True Jesus Church values.
-Avoid: crosses with human figures, Catholic/Orthodox iconography, overly decorative elements.
-Colors: Prefer blue, white, gold, or earth tones.
-Include subtle Christian elements like dove, bible, wheat, or simple geometric patterns.
-
-Event details:
-[活動資訊]
-```
-
-### 一般基督教風格
-
-```
-Design an event poster suitable for a Christian church event.
-Style: Modern, welcoming, spiritually uplifting.
-Include: soft lighting, nature elements, community themes, subtle religious symbols.
-Avoid: controversial imagery, denominational-specific symbols.
-Colors: Warm and inviting palette.
-
-Event details:
-[活動資訊]
-```
-
-### 創意自由風格
-
-```
-Design a creative and eye-catching event poster.
-Style: Bold, innovative, artistic freedom.
-Be creative with colors, typography, and visual elements.
-Make it memorable and visually impactful.
-
-Event details:
-[活動資訊]
-```
-
 ## 注意事項
 
 1. **中文字體限制**：AI 圖片生成對中文字體支援有限，生成的文字可能有錯誤，需要手動修正
 2. **API 費用**：圖片生成會消耗 API 額度，請注意使用量
 3. **著作權**：AI 生成的圖片請確認使用授權
-
-## 建議工作流程
-
-1. 提供完整的活動資訊
-2. 選擇適合的風格和尺寸
-3. 生成多個草稿
-4. 選擇最佳設計
-5. 使用設計軟體修正文字
-6. 最終輸出
+4. **Telegram 用戶**：圖片需透過 Telegram Bot API（sendPhoto）回傳，不能只在對話中顯示
 
 ## 相關資源
 
-- [Canva](https://www.canva.com) - 線上設計工具
+- [Canva](https://www.canva.com) - 線上設計工具，適合後續修正文字
 - [Remove.bg](https://www.remove.bg) - 去背工具
 - [TinyPNG](https://tinypng.com) - 圖片壓縮
